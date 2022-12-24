@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 				parentpid = getppid();
 				mypid = getpid();
 			   }
-			 }
+		}
 		 i++;  // NÃºmero de hijos creados
 		}
 
@@ -100,21 +100,33 @@ int main(int argc, char* argv[]){
 			message.mesg_type = COD_ESTOY_AQUI;
 			sprintf(message.mesg_text,"%d",mypid);
 			msgsnd( msgid, &message, sizeof(message), IPC_NOWAIT);
-			// Un montÃ³n de cÃ³digo por escribir
-			sleep(60); // Esto es solo para que el esqueleto no muera de inmediato, quitar en el definitivo
 
+			msgrcv(msgid, &message, sizeof(message), COD_LIMITES, 0);
+			sscanf(message.mesg_text,"%ld %d",&nbase,&nrango);
+
+			for(numero=nbase;numero<nbase+nrango;numero++){
+				if(Comprobarsiesprimo(numero)){
+					message.mesg_type=COD_RESULTADOS;
+					sprintf(message.mesg_text,"%d %ld",mypid,numero);
+					msgsnd(msgid, &message, sizeof(message), IPC_NOWAIT);
+				}
+			}
+			message.mesg_type = COD_FIN;
+			sprintf(message.mesg_text,"%d",mypid);
+			msgsnd(msgid,&message, sizeof(message), IPC_NOWAIT);
 			exit(0);
 		}
 		// SERVER
 		else{
 		  // Pide memoria dinÃ¡mica para crear la lista de pids de los hijos CALCuladores
+		  pidhijos=(int*)malloc(numhijos*sizeof(int));
 		  //RecepciÃ³n de los mensajes COD_ESTOY_AQUI de los hijos
 		  for (j=0; j <numhijos; j++){
 			  msgrcv(msgid, &message, sizeof(message), 0, 0);
-			  sscanf(message.mesg_text,"%d",&pid); // TendrÃ¡s que guardar esa pid
-			  printf("\nMe ha enviado un mensaje el hijo %d\n",pid);
+			  sscanf(message.mesg_text,"%d",&pidhijos[j]); // TendrÃ¡s que guardar esa pid
+			  printf("\nMe ha enviado un mensaje el hijo %d\n",pidhijos[j]);
 		  }
-			sleep(60); // Esto es solo para que el esqueleto no muera de inmediato, quitar en el definitivo
+		//	sleep(60); // Esto es solo para que el esqueleto no muera de inmediato, quitar en el definitivo
 
 		  // Mucho cÃ³digo con la lÃ³gica de negocio de SERVER
 		  // Borrar la cola de mensajerÃ­a, muy importante. No olvides cerrar los ficheros
@@ -124,20 +136,43 @@ int main(int argc, char* argv[]){
 
     // Rama de RAIZ, proceso primigenio
     else{
+      cuentasegs=0;
       alarm(INTERVALO_TIMER);
       signal(SIGALRM, alarmHandler);
-      for (;;)    // Solo para el esqueleto
-		sleep(1); // Solo para el esqueleto
-	  // Espera del final de SERVER
-      // ...
-      // El final de todo
+      wait(NULL);
+      printf("RESULTADO: %d primos detectados\n",ContarLineas());
     }
+	free(pidhijos);
 }
 
 // Manejador de la alarma en el RAIZ
 static void alarmHandler(int signo){
-//...
-    printf("SOLO PARA EL ESQUELETO... Han pasado 5 segundos\n");
-    alarm(INTERVALO_TIMER);
+	FILE *fc;
+	int nprim;
+	cuentasegs=cuentasegs+INTERVALO_TIMER;
+	if((fc=fopen(NOMBRE_FICH_CUENTA,"r"))!=NULL){
+		fscanf(fc,"%d",&nprim);
+		fclose(fc);
+		printf("%02d (segs): %d primos encontrados\n",cuentasegs,nprim);
+	}else{
+		printf("%02d (segs)\n",cuentasegs);
+	}
+	alarm(INTERVALO_TIMER);
+}
 
+int Comprobarsiesprimo(long int numero){
+	int contador=0;
+	int esPrimo=0;//0 si no es primo
+	for(int i=1; i<=numero; i++){
+		if(numero%i==0){
+			contador++;
+		}
+	}
+	if(contador==2){
+		esPrimo=1;//1 si es primo
+	}
+	return esPrimo;
+}
+int ContarLineas(){
+return 0;
 }
