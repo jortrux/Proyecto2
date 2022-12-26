@@ -118,6 +118,7 @@ int main(int argc, char* argv[]){
 		}
 		// SERVER
 		else{
+		  tstart=time(NULL);
 		  // Pide memoria dinÃ¡mica para crear la lista de pids de los hijos CALCuladores
 		  pidhijos=(int*)malloc(numhijos*sizeof(int));
 		  //RecepciÃ³n de los mensajes COD_ESTOY_AQUI de los hijos
@@ -126,6 +127,8 @@ int main(int argc, char* argv[]){
 			  sscanf(message.mesg_text,"%d",&pidhijos[j]); // TendrÃ¡s que guardar esa pid
 			  printf("\nMe ha enviado un mensaje el hijo %d\n",pidhijos[j]);
 		  }
+		  Imprimirjerarquiaproc(pidraiz,pidservidor,pidhijos,numhijos);
+
 		//	sleep(60); // Esto es solo para que el esqueleto no muera de inmediato, quitar en el definitivo
 
 		  // Mucho cÃ³digo con la lÃ³gica de negocio de SERVER
@@ -173,6 +176,19 @@ int Comprobarsiesprimo(long int numero){
 	}
 	return esPrimo;
 }
+
+void Imprimirjerarquiaproc(int pidraiz,int pidservidor, int *pidhijos, int numhijos){
+	printf("Raiz\tServ\tCalc\n");
+	for(int i=0;i<numhijos;i++){
+		if(i==0){
+			printf("%i\t%i\t%i\n",pidraiz,pidservidor,pidhijos[i]);
+		}else{
+			printf("\t\t%i\n",pidhijos[i]);
+		}
+	}
+}
+
+
 int ContarLineas(){
-return 0;
+	return 0;
 }
