@@ -62,6 +62,10 @@ int main(int argc, char* argv[]){
     char info[LONGITUD_MSG_ERR];
     FILE *fsal, *fc;
     int numhijos;
+
+    File *fd;//para cuando habra los ficheros
+
+
     // Control de entrada, despuÃ©s del nombre del script debe figurar el nÃºmero de hijos y el parÃ¡metro verbosity
     numhijos = 2;     // SOLO para el esqueleto, en el proceso  definitivo vendrÃ¡ por la entrada
     pid=fork();       // CreaciÃ³n del SERVER
@@ -128,10 +132,18 @@ int main(int argc, char* argv[]){
 			  printf("\nMe ha enviado un mensaje el hijo %d\n",pidhijos[j]);
 		  }
 		  Imprimirjerarquiaproc(pidraiz,pidservidor,pidhijos,numhijos);
+			//saco el rango para despues de haber recibido todos los mensajes, indicar a cada calculador, de donde a donde buscar primos
+		  nrango=RANGO/numhijos;
+		  nbase=BASE;
 
-		//	sleep(60); // Esto es solo para que el esqueleto no muera de inmediato, quitar en el definitivo
+		  //un bucle que recorre todos los hijos mandando un mensaje para su base y su fin, actualizando la base por cada vez que recorre el bucle y al cambiar la base tambien cambia el fin, a si que divide la busqueda en porciones para cada calculador
+		  for(int i=0; i<numhijos;i++){
+			nfin=nbase+nrango-1;
+			message.mesg_type=COD_LIMITES;
+			sprintf(message.mesg_text,"%ld %d",nbase,nfin);
+			nbase=nbase+nrango;
+		  }
 
-		  // Mucho cÃ³digo con la lÃ³gica de negocio de SERVER
 		  // Borrar la cola de mensajerÃ­a, muy importante. No olvides cerrar los ficheros
 		  msgctl(msgid,IPC_RMID,NULL);
 	   }
