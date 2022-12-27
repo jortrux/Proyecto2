@@ -175,9 +175,11 @@ int main(int argc, char* argv[]){
       alarm(INTERVALO_TIMER);
       signal(SIGALRM, alarmHandler);
       wait(NULL);
-      printf("RESULTADO: %d primos detectados\n",ContarLineas());
+	if(ContarLineas()!=-1){
+      	    printf("RESULTADO: %d primos detectados\n",ContarLineas());
+        }
     }
-	free(pidhijos);
+    free(pidhijos);
 }
 
 // Manejador de la alarma en el RAIZ
@@ -222,5 +224,18 @@ void Imprimirjerarquiaproc(int pidraiz,int pidservidor, int *pidhijos, int numhi
 
 
 int ContarLineas(){
-	return 0;
+	int c=0;
+	int primo=0;
+	FILE *fd = fopen(NOMBRE_FICH,"r");
+	if(fd==NULL){//ahora si que hago prueba de error porque es lecura
+		printf("error, el fichero no existe\n");
+		return -1;
+	}else{
+		while(!feof(fd)){
+			c++;
+			fscanf(fd,"%i",&primo);
+		}
+		fclose(fd);
+		return c;
+	}
 }
