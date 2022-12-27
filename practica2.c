@@ -46,7 +46,7 @@ int cuentasegs;                   // Variable para el cÃ³mputo del tiempo tota
 
 int main(int argc, char* argv[]){
 	int i,j;
-	long int numero;
+	long int numero=0;
 	long int numprimrec;
     long int nbase;
     int nrango;
@@ -63,9 +63,8 @@ int main(int argc, char* argv[]){
     FILE *fsal, *fc;
     int numhijos;
 
-    File *fd;//para cuando habra los ficheros
-
-
+    FILE *fd;//para cuando abra los ficheros correspondientes
+    FILE *fd2;
     // Control de entrada, despuÃ©s del nombre del script debe figurar el nÃºmero de hijos y el parÃ¡metro verbosity
     numhijos = 2;     // SOLO para el esqueleto, en el proceso  definitivo vendrÃ¡ por la entrada
     pid=fork();       // CreaciÃ³n del SERVER
@@ -143,9 +142,30 @@ int main(int argc, char* argv[]){
 			sprintf(message.mesg_text,"%ld %d",nbase,nfin);
 			nbase=nbase+nrango;
 		  }
-
+		  //abro/creo el fichero primos.txt donde almacenare todos los primos que encuentre
+		  fd=fopen(NOMBRE_FICH,"w");
+		  fd2=fopen(NOMBRE_FICH_CUENTA,"w+");
+	//como abro en escritura no hago comprobacion de error, ya que si no existe se crea
+		  //por lo que he leido, cada vez que un hijo termina su rango, numhijos-- si no,lo guardamos en el fichero, y si la cantidad de primos es 5*n entonces guardamos esa cifra en otro fichero
+		  while(numhijos!=0){
+			msgrcv(msgid,&message,sizeof(message),0,0);//admito, que he pedido ayuda para esa funcion porque sigo sin tener claras las finciones de signal ni de shared memory
+			if(message.mesg_type==COD_FIN){
+				sscanf(message.mesg_text,"%d",&pidcalc);
+				numhijos--;
+			}else if(message.mesg_type==COD_RESULTADOS){
+				sscanf(message.mesg_text,"%ld %d",&numprimrec,&pidcalc);
+				fprintf(fd,"%ld\n",numprimrec);
+				//
+				numero++;//uso la variable numero de contador
+			}
+			if(numero%5==0){
+				fprintf(fd2,"%d, ",numero);
+			}
+		  }
+		  fclose(fd);
 		  // Borrar la cola de mensajerÃ­a, muy importante. No olvides cerrar los ficheros
 		  msgctl(msgid,IPC_RMID,NULL);
+		  exit(1);
 	   }
     }
 
