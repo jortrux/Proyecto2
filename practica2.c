@@ -20,8 +20,8 @@
 #define NOMBRE_FICH_CUENTA "cuentaprimos.txt"
 #define CADA_CUANTOS_ESCRIBO 5
 // rango de bÃºsqueda, desde BASE a BASE+RANGO
-#define BASE 800000000
-#define RANGO 2000
+#define BASE 80000//recordar ponerlo como antes despues
+#define RANGO 20
 // Intervalo del temporizador para RAIZ
 #define INTERVALO_TIMER 5
 // CÃ³digos de mensaje para el campo mesg_type del tipo T_MESG_BUFFER
@@ -161,8 +161,10 @@ int main(int argc, char* argv[]){
 				}else if(message.mesg_type==COD_RESULTADOS){
 					sscanf(message.mesg_text,"%ld %d",&numprimrec,&pidcalc);
 					fprintf(fd,"%ld\n",numprimrec);//leemos el valor del primo, y lo metemos en el fichero
-					//sprintf(fd,"MSG %d | %ld PID %d\n",contMSG,numprimrec,pidcalc);
+					char c[100];
+					sprintf(c,"MSG %d | %ld PID %d\n",contador,numprimrec,pidcalc);
 					contador++;
+					Informar(c,verbosity);
 				}
 				if(contador%5==0){
 					fd2=fopen(NOMBRE_FICH_CUENTA,"w+");
@@ -247,5 +249,8 @@ int ContarLineas(){
 		return c;
 	}
 }
-void informar(char *texto, int verboso){
+void Informar(char *texto, int verboso){
+	if(verboso){
+		printf("%s",texto);
+	}
 }
