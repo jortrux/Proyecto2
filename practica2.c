@@ -46,7 +46,8 @@ int cuentasegs;                   // Variable para el cÃ³mputo del tiempo tota
 
 int main(int argc, char* argv[]){
 	int i,j;
-	long int numero=0;
+	long int numero;
+	int contador;
 	long int numprimrec;
     long int nbase;
     int nrango;
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]){
 				sscanf(message.mesg_text,"%ld %d",&nbase,&nrango);
 
 				for(numero=nbase;numero<nbase+nrango;numero++){
-					if(Comprobarsiesprimo(numero)){
+					if(Comprobarsiesprimo(numero)==1){
 						message.mesg_type=COD_RESULTADOS;
 						sprintf(message.mesg_text,"%d %ld",mypid,numero);
 						msgsnd(msgid, &message, sizeof(message), IPC_NOWAIT);
@@ -145,11 +146,11 @@ int main(int argc, char* argv[]){
 				nfin=nbase+nrango-1;
 				message.mesg_type=COD_LIMITES;
 				sprintf(message.mesg_text,"%ld %d",nbase,nfin);
+				msgsnd( msgid, &message, sizeof(message), IPC_NOWAIT);
 				nbase=nbase+nrango;
 			  }
 			  //abro/creo el fichero primos.txt donde almacenare todos los primos que encuentre
 			  fd=fopen(NOMBRE_FICH,"w");
-			  fd2=fopen(NOMBRE_FICH_CUENTA,"w+");
 		//como abro en escritura no hago comprobacion de error, ya que si no existe se crea
 			  //por lo que he leido, cada vez que un hijo termina su rango, numhijos-- si no,lo guardamos en el fichero, y si la cantidad de primos es 5*n entonces guardamos esa cifra en otro fichero
 			  while(numhijos!=0){
@@ -159,11 +160,14 @@ int main(int argc, char* argv[]){
 					numhijos--;
 				}else if(message.mesg_type==COD_RESULTADOS){
 					sscanf(message.mesg_text,"%ld %d",&numprimrec,&pidcalc);
-					fprintf(fd,"%ld\n",numprimrec);
-					numero++;//uso la variable numero de contador
+					fprintf(fd,"%ld\n",numprimrec);//leemos el valor del primo, y lo metemos en el fichero
+					//sprintf(fd,"MSG %d | %ld PID %d\n",contMSG,numprimrec,pidcalc);
+					contador++;
 				}
-				if(numero%5==0){
-					fprintf(fd2,"%d, ",numero);
+				if(contador%5==0){
+					fd2=fopen(NOMBRE_FICH_CUENTA,"w+");
+					fprintf(fd2,"%d\n",contador);//si el contador es multiplo de cinco pal otro fichero que va
+					fclose(fd2);
 				}
 			  }
 			  fclose(fd);
