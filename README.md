@@ -9,4 +9,11 @@ partiendo del esqueleto proporcionado:
 
 hay cuatro funciones a crear:
 
-- Comprobarsiesprimo(long int numero)... vale, ya veo un posible problema, uso numero de contador tambien JAJAJAJA, un segundo, ahora lo explico
+- Comprobarsiesprimo() que es la clasica funcion de comprobar un numero primo comprobando entre cuantos numeros es divisible
+- alarmHandler() que cada vez que se cumple el intervalo de tiempo se mostrara por pantalla el tiempo trascurrido y la cantidad de primos encontrados
+- info() que te mostrara o no informacion de un array en funcion del verbosity
+- Contarlineas() que te dira cuantos numeros primos has encontrado en total
+- Imprimirjerarquiaproc() que nos mostrara por el terminal el proceso padre, el server, y sus hijos, en una tabla, con sus pid correspondientes
+
+
+luego esta el codigo del main:
